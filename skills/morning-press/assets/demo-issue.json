@@ -5,7 +5,7 @@
   "demo": true,
   "sections": [
     {
-      "id": "headlines",
+      "id": "sample-1",
       "status": "ready",
       "note": "",
       "items": [
@@ -33,7 +33,7 @@
       ]
     },
     {
-      "id": "local",
+      "id": "sample-2",
       "status": "ready",
       "note": "",
       "items": [
@@ -50,7 +50,7 @@
       ]
     },
     {
-      "id": "reading",
+      "id": "sample-3",
       "status": "ready",
       "note": "",
       "items": [
@@ -67,7 +67,7 @@
       ]
     },
     {
-      "id": "learning",
+      "id": "sample-4",
       "status": "ready",
       "note": "",
       "items": [

@@ -4,9 +4,9 @@
 
 Ship a reusable newspaper skill, not a shared service holding readers' data. Keep editorial defaults configurable and avoid migration that implicitly reads a prior installation. The public project starts with a new Git history and synthetic fixtures. Private installations continue independently.
 
-## Implemented in 0.1.0
+## Implemented in 0.1.1
 
-1. A conditional conversational setup and a terminal alternative with draft checkpoints, review, confirmation, and later edits.
+1. A conditional conversational setup and a terminal alternative with empty new-reader profiles, explicit choices, draft checkpoints, review, confirmation, and later edits. Setup never loads the demo profile or inherits author information.
 2. A versioned strict profile schema for identity, language/timezone, enabled sections, sources, regional coverage, recommendations, links, page budget, and delivery preferences.
 3. Private, separate named profiles, outside-package path checks, restrictive new-file permissions where supported, and revision-preserving output.
 4. A strict editorial data contract with unavailable/no-updates distinctions, public source provenance, canonical HTTPS links, section caps, and disabled-section rejection.

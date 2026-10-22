@@ -74,6 +74,8 @@ For a terminal setup instead of a conversational interview:
 
 The terminal wizard supports one section per kind and one calendar source. Conversational setup and the schema support multiple news/custom sections and calendar preferences. Checkpoints remain drafts until you review and confirm. Later preference changes preserve unrelated choices.
 
+New reader profiles start empty. No newspaper language, location, interests, sections, source policy, currency, page count, link choice, or routine is preselected. Required choices need an explicit answer; optional answers may stay empty. Only the selected reader's previous answers are retained when resuming. The demo has its own synthetic profile and never supplies onboarding defaults. No author preferences or personal information may be reused, including as examples or inferred editorial rules.
+
 ## What runs where
 
 ```text
@@ -115,6 +117,6 @@ git add -- public-files.json README.md LICENSE CONTRIBUTING.md requirements.txt 
 .venv/bin/python tools/check_public.py --history
 ```
 
-The guard examines indexed file contents and every reachable historical blob against an explicit public-file manifest and common sensitive-data patterns. It is a useful check, not proof that arbitrary prose is anonymous. Review every staged diff. Do not attach a real edition or profile to an issue or PR. See [privacy](docs/PRIVACY.md) and [contributing](CONTRIBUTING.md).
+The guard examines indexed file contents and every reachable historical blob against an explicit public-file manifest and common sensitive-data patterns. The manifest separates current `files` from reviewed `historical_files` retained after renames; historical content is still scanned. It is a useful check, not proof that arbitrary prose is anonymous. Review every staged diff. Do not attach a real edition or profile to an issue or PR. See [privacy](docs/PRIVACY.md) and [contributing](CONTRIBUTING.md).
 
 MIT licensed. Article text, photos, publisher content, and account data are not relicensed by this code's license.

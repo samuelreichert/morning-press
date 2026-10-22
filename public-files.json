@@ -1,26 +1,31 @@
-[
-  ".github/workflows/checks.yml",
-  ".gitignore",
-  "CONTRIBUTING.md",
-  "LICENSE",
-  "README.md",
-  "docs/PLAN.md",
-  "docs/PRIVACY.md",
-  "plugin.json",
-  "public-files.json",
-  "requirements.txt",
-  "skills/morning-press/SKILL.md",
-  "skills/morning-press/agents/openai.yaml",
-  "skills/morning-press/assets/demo-issue.json",
-  "skills/morning-press/assets/example-profile.json",
-  "skills/morning-press/assets/issue.schema.json",
-  "skills/morning-press/assets/profile.schema.json",
-  "skills/morning-press/references/editorial.md",
-  "skills/morning-press/references/integrations.md",
-  "skills/morning-press/references/setup.md",
-  "skills/morning-press/scripts/core.py",
-  "skills/morning-press/scripts/press.py",
-  "skills/morning-press/scripts/render.py",
-  "tests/test_press.py",
-  "tools/check_public.py"
-]
+{
+  "files": [
+    ".github/workflows/checks.yml",
+    ".gitignore",
+    "CONTRIBUTING.md",
+    "LICENSE",
+    "README.md",
+    "docs/PLAN.md",
+    "docs/PRIVACY.md",
+    "plugin.json",
+    "public-files.json",
+    "requirements.txt",
+    "skills/morning-press/SKILL.md",
+    "skills/morning-press/agents/openai.yaml",
+    "skills/morning-press/assets/demo-issue.json",
+    "skills/morning-press/assets/demo-profile.json",
+    "skills/morning-press/assets/issue.schema.json",
+    "skills/morning-press/assets/profile.schema.json",
+    "skills/morning-press/references/editorial.md",
+    "skills/morning-press/references/integrations.md",
+    "skills/morning-press/references/setup.md",
+    "skills/morning-press/scripts/core.py",
+    "skills/morning-press/scripts/press.py",
+    "skills/morning-press/scripts/render.py",
+    "tests/test_press.py",
+    "tools/check_public.py"
+  ],
+  "historical_files": [
+    "skills/morning-press/assets/example-profile.json"
+  ]
+}

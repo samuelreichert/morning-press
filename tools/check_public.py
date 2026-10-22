@@ -30,13 +30,20 @@ def scan(root, history=False):
     root = Path(root)
     indexed = git(root,"ls-files","--stage","-z").decode().split("\0")
     manifest = json.loads(git(root,"show",":public-files.json"))
-    if not isinstance(manifest,list) or len(manifest) != len(set(manifest)) or any(not isinstance(p,str) or PurePosixPath(p).is_absolute() or ".." in PurePosixPath(p).parts for p in manifest):
-        raise ValueError("public-files.json must be a unique list of relative public paths")
-    allowed = set(manifest)
+    if isinstance(manifest,dict) and set(manifest) == {"files","historical_files"}:
+        current_paths, retired_paths = manifest["files"], manifest["historical_files"]
+    elif isinstance(manifest,list):
+        current_paths, retired_paths = manifest, []
+    else:
+        raise ValueError("Public manifest must contain files and historical_files lists")
+    for paths in (current_paths, retired_paths):
+        if not isinstance(paths,list) or any(not isinstance(p,str) or PurePosixPath(p).is_absolute() or ".." in PurePosixPath(p).parts for p in paths) or len(paths) != len(set(paths)):
+            raise ValueError("Public manifest entries must be unique relative paths")
+    allowed, historical = set(current_paths), set(retired_paths)
     problems, checked, current = [], set(), set()
 
-    def blob(sha, path):
-        if path not in allowed:
+    def blob(sha, path, old=False):
+        if path not in (allowed | historical if old else allowed):
             problems.append(f"Unapproved public path: {path}")
         if sha in checked:
             return
@@ -66,7 +73,7 @@ def scan(root, history=False):
         for entry in git(root,"rev-list","--objects","--all").decode().splitlines():
             sha, _, path = entry.partition(" ")
             if path and git(root,"cat-file","-t",sha).strip() == b"blob":
-                blob(sha,path)
+                blob(sha,path,old=True)
     if problems:
         raise ValueError("\n".join(sorted(set(problems))))
     return len(checked)

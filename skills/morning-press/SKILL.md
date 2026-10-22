@@ -7,6 +7,8 @@ description: Set up, personalize, or produce a sourced morning newspaper with a 
 
 Create the reader's newspaper from their own profile. This package contains only code and fictional examples. Do not look for preferences, calendars, previous newspapers, or configuration in neighboring projects, other chats, or another reader's profile.
 
+Start every new reader with an empty draft from `scripts/core.py:blank_profile`. Do not load the demo profile during setup. Do not reuse the author's personal information, preferences, selections, prior conversations, or private skill as defaults, examples, source restrictions, or editorial rules. Ask the current reader explicitly about language, region, sections, format, links, and routine; neither documentation language nor the host's locale answers those questions. Keep required choices unset until answered. Only reuse answers already supplied by that reader for the selected profile.
+
 ## Route the request
 
 - **First use or setup:** read [setup](references/setup.md). Interview the reader in their preferred language, using a few related questions at a time. Save a resumable private draft, summarize the choices, then mark it ready when the reader confirms. Do not generate a real issue before that. A fictional demo is available without setup.

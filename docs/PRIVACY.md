@@ -2,6 +2,8 @@
 
 The repository contains skill instructions, schemas, rendering code, documentation, tests, and invented examples. A fresh install has no knowledge of another reader. No migration or search of neighboring folders is performed.
 
+A new reader starts with empty preference fields and no enabled sections. Setup never copies the demo profile. Do not reuse an author's personal information or selections as examples, defaults, source rules, or inferred interests. Only answers explicitly supplied by the current reader may populate their profile. Previously saved profiles are read only when that profile is deliberately selected; they are not templates for new readers.
+
 Profiles and generated editions are private local files outside the package. They may include interests, locations, source preferences, agenda summaries, and browsing-derived editorial content. Private storage is not encrypted by this project. Use an appropriate local account and storage location, and understand any backup/sync service you choose.
 
 This package has no telemetry and its Python helpers make no network requests. When a host agent researches or uses a connector, that host/provider's own processing and permissions still apply. Local rendering does not make an online agent's conversation offline.

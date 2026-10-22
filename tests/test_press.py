@@ -13,7 +13,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT / "skills" / "morning-press" / "scripts"))
 sys.path.insert(0,str(ROOT / "tools"))
-from core import PUBLIC_ROOT, SKILL, data_home, profile_path, public_url, read_json, save_profile, validate_issue, validate_profile
+from core import PUBLIC_ROOT, SKILL, blank_profile, data_home, profile_path, public_url, read_json, save_profile, validate_issue, validate_profile
 from render import markdown, pdf_bytes, render
 from press import main, wizard
 from check_public import findings, scan
@@ -22,7 +22,7 @@ from pypdf import PdfReader
 
 class PressTests(unittest.TestCase):
     def setUp(self):
-        self.profile = read_json(SKILL / "assets" / "example-profile.json")
+        self.profile = read_json(SKILL / "assets" / "demo-profile.json")
         self.issue = read_json(SKILL / "assets" / "demo-issue.json")
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -30,6 +30,20 @@ class PressTests(unittest.TestCase):
 
     def test_example_satisfies_contract(self):
         validate_issue(self.issue,self.profile)
+
+    def test_fresh_setup_contains_no_reader_choices_or_demo_data(self):
+        expected = blank_profile()
+        self.assertEqual(expected["publication"],{})
+        self.assertEqual(expected["sections"],[])
+        self.assertEqual(expected["editorial"],{})
+        self.assertEqual(expected["delivery"],{})
+        validate_profile(expected)
+        with patch("press.read_json",side_effect=AssertionError("Setup must not load the demo")),patch("builtins.input",side_effect=EOFError),redirect_stdout(io.StringIO()),self.assertRaises(EOFError):
+            wizard(self.base,"new-reader",False)
+        self.assertEqual(read_json(profile_path(self.base,"new-reader")),expected)
+        expected["status"] = "ready"
+        with self.assertRaises(ValueError):
+            validate_profile(expected,ready=True)
 
     def test_profiles_are_isolated_and_private(self):
         first = save_profile(self.base,"first",self.profile)
@@ -98,7 +112,7 @@ class PressTests(unittest.TestCase):
             validate_issue(self.issue,self.profile)
         self.issue["sections"].pop()
         validate_issue(self.issue,self.profile)
-        self.assertNotIn("A small discovery",markdown(self.issue,self.profile))
+        self.assertNotIn("Sample section 4",markdown(self.issue,self.profile))
 
     def test_item_cap_enforced(self):
         self.profile["sections"][0]["max_items"] = 1
@@ -189,8 +203,8 @@ class PressTests(unittest.TestCase):
         page = PdfReader(io.BytesIO(data)).pages[0]
         self.assertEqual(layout["pages"],1)
         self.assertEqual(round(float(page.mediabox.width)),612)
-        self.assertNotIn("Between the pages",page.extract_text())
-        self.assertNotIn("A small discovery",page.extract_text())
+        self.assertNotIn("Sample section 3",page.extract_text())
+        self.assertNotIn("Sample section 4",page.extract_text())
 
     def test_pdf_page_budget_failure_leaves_no_output(self):
         for pages in (1,12):
@@ -239,16 +253,29 @@ class PressTests(unittest.TestCase):
             validate_issue(draft,self.profile)
 
     def test_terminal_interview_news_only(self):
-        answers = ["", "", "", "UTC", "markdown", "yes", "news", "News", "3", "science", "-", "balanced", "open", "Worldwide", "An adult reader", "Clear and calm", "36", "7", "no", "no", "yes"]
+        answers = ["Reader title", "-", "fr", "Pacific/Honolulu", "markdown", "yes", "news", "News", "3", "science", "-", "balanced", "open", "Worldwide", "An adult reader", "Clear and calm", "36", "7", "no", "no", "yes"]
         with patch("builtins.input",side_effect=answers),redirect_stdout(io.StringIO()):
             wizard(self.base,"main",False)
         p = read_json(profile_path(self.base,"main"))
         self.assertEqual(p["status"],"ready")
         self.assertEqual([s["kind"] for s in p["sections"]],["news"])
         self.assertFalse(p["delivery"]["schedule_requested"])
+        self.assertEqual(p["delivery"]["weekdays"],[])
+        self.assertEqual(p["publication"]["language"],"fr")
+        self.assertEqual(p["publication"]["timezone"],"Pacific/Honolulu")
+        self.assertNotIn("paper",p["publication"])
+        self.assertNotIn("pages",p["publication"])
+
+    def test_required_choices_cannot_be_selected_by_enter(self):
+        from press import required, yes, select, number
+        with patch("builtins.input",side_effect=["", "Reader choice", "", "no", "", "markdown", "", "5"]),redirect_stdout(io.StringIO()):
+            self.assertEqual(required("Title"),"Reader choice")
+            self.assertFalse(yes("Clickable links"))
+            self.assertEqual(select("Format",("pdf","markdown")),"markdown")
+            self.assertEqual(number("Item cap"),5)
 
     def test_interrupted_setup_keeps_resumable_draft(self):
-        answers = ["My Edition", "", "", "UTC", "markdown", "yes", "news", "News", "3", "science", "-", "balanced", "open", "Worldwide"]
+        answers = ["My Edition", "-", "fr", "Pacific/Honolulu", "markdown", "yes", "news", "News", "3", "science", "-", "balanced", "open", "Worldwide"]
         with patch("builtins.input",side_effect=answers),redirect_stdout(io.StringIO()),self.assertRaises(StopIteration):
             wizard(self.base,"main",False)
         p = read_json(profile_path(self.base,"main"))
@@ -257,6 +284,23 @@ class PressTests(unittest.TestCase):
 
 
 class PublicGuardTests(unittest.TestCase):
+    def test_reviewed_retired_path_is_history_only(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            subprocess.run(["git","init","-q",str(root)],check=True)
+            (root / "public-files.json").write_text(json.dumps(["public-files.json","old.txt"]))
+            (root / "old.txt").write_text("Synthetic public fixture")
+            subprocess.run(["git","-C",str(root),"add","."],check=True)
+            subprocess.run(["git","-C",str(root),"-c","user.name=Test Contributor","-c","user.email=test.invalid","commit","-qm","Public fixture"],check=True)
+            (root / "old.txt").rename(root / "new.txt")
+            (root / "public-files.json").write_text(json.dumps({"files":["public-files.json","new.txt"],"historical_files":["old.txt"]}))
+            subprocess.run(["git","-C",str(root),"add","-A"],check=True)
+            scan(root,True)
+            (root / "old.txt").write_text("This retired path is not approved for the current index")
+            subprocess.run(["git","-C",str(root),"add","old.txt"],check=True)
+            with self.assertRaises(ValueError):
+                scan(root,True)
+
     def test_sensitive_patterns_without_echoing_data(self):
         self.assertIn("email address",findings("reader" + "@" + "example.org"))
         self.assertIn("absolute home path",findings("/" + "Users/ExampleReader/private"))

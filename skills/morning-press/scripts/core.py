@@ -17,6 +17,11 @@ PUBLIC_ROOT = next((p for p in SKILL.parents if (p / "plugin.json").is_file()), 
 KINDS = ("news", "weather", "calendar", "economy", "events", "books", "screen", "learning", "positive", "language", "custom")
 
 
+def blank_profile():
+    """A fresh interview has no reader choices and never loads demonstration data."""
+    return {"version":1,"status":"draft","publication":{},"sections":[],"editorial":{},"delivery":{}}
+
+
 def read_json(path):
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
@@ -59,16 +64,18 @@ def public_url(value):
 
 def validate_profile(profile, ready=False):
     validate_schema(profile, "profile")
-    timezone(profile["publication"]["timezone"])
-    ids = [s["id"] for s in profile["sections"]]
+    if profile.get("publication", {}).get("timezone"):
+        timezone(profile["publication"]["timezone"])
+    ids = [s["id"] for s in profile.get("sections", []) if "id" in s]
     if len(ids) != len(set(ids)):
         raise ValueError("Section IDs must be unique")
-    for section in profile["sections"]:
-        for location in section["options"].get("locations", []):
-            timezone(location["timezone"])
-        if section["kind"] == "calendar":
-            for provider in section["options"].get("providers", []):
-                if provider["state"] == "connected" and provider["mode"] != "connector":
+    for section in profile.get("sections", []):
+        for location in section.get("options", {}).get("locations", []):
+            if "timezone" in location:
+                timezone(location["timezone"])
+        if section.get("kind") == "calendar":
+            for provider in section.get("options", {}).get("providers", []):
+                if provider.get("state") == "connected" and provider.get("mode") != "connector":
                     raise ValueError("Only a verified connector may be marked connected")
     if ready or profile["status"] == "ready":
         if profile["status"] != "ready":

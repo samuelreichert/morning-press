@@ -2,8 +2,8 @@
   "version": 1,
   "status": "ready",
   "publication": {
-    "title": "The Morning Edition",
-    "subtitle": "A little perspective for the day ahead",
+    "title": "Layout demonstration",
+    "subtitle": "Synthetic content for testing the renderer",
     "language": "en",
     "timezone": "UTC",
     "pages": 2,
@@ -18,18 +18,13 @@
   },
   "sections": [
     {
-      "id": "headlines",
-      "kind": "news",
-      "title": "The bigger picture",
+      "id": "sample-1",
+      "kind": "custom",
+      "title": "Sample section 1",
       "enabled": true,
       "max_items": 3,
-      "regions": [
-        "Worldwide"
-      ],
-      "topics": [
-        "science",
-        "culture"
-      ],
+      "regions": [],
+      "topics": [],
       "exclude": [],
       "depth": "balanced",
       "sources": {
@@ -39,17 +34,13 @@
       "options": {}
     },
     {
-      "id": "local",
-      "kind": "news",
-      "title": "Around the corner",
+      "id": "sample-2",
+      "kind": "custom",
+      "title": "Sample section 2",
       "enabled": true,
       "max_items": 3,
-      "regions": [
-        "Example City"
-      ],
-      "topics": [
-        "public spaces"
-      ],
+      "regions": [],
+      "topics": [],
       "exclude": [],
       "depth": "balanced",
       "sources": {
@@ -59,68 +50,48 @@
       "options": {}
     },
     {
-      "id": "reading",
-      "kind": "books",
-      "title": "Between the pages",
+      "id": "sample-3",
+      "kind": "custom",
+      "title": "Sample section 3",
       "enabled": true,
       "max_items": 3,
       "regions": [],
-      "topics": [
-        "nature writing"
-      ],
+      "topics": [],
       "exclude": [],
       "depth": "balanced",
       "sources": {
         "mode": "open",
         "domains": []
       },
-      "options": {
-        "interests": [
-          "science",
-          "nature"
-        ],
-        "avoid": [],
-        "spoiler_free": true
-      }
+      "options": {}
     },
     {
-      "id": "learning",
-      "kind": "learning",
-      "title": "A small discovery",
+      "id": "sample-4",
+      "kind": "custom",
+      "title": "Sample section 4",
       "enabled": true,
       "max_items": 3,
       "regions": [],
-      "topics": [
-        "critical thinking"
-      ],
+      "topics": [],
       "exclude": [],
       "depth": "balanced",
       "sources": {
         "mode": "open",
         "domains": []
       },
-      "options": {
-        "learning_level": "beginner",
-        "learning_format": "concept"
-      }
+      "options": {}
     }
   ],
   "editorial": {
-    "lookback_hours": 36,
-    "avoid_repeats_days": 7,
-    "audience": "An adult reader",
-    "tone": "Clear, curious, and calm"
+    "lookback_hours": 1,
+    "avoid_repeats_days": 0,
+    "audience": "Synthetic test fixture",
+    "tone": "Demonstration"
   },
   "delivery": {
     "schedule_requested": false,
     "time": null,
-    "weekdays": [
-      "MO",
-      "TU",
-      "WE",
-      "TH",
-      "FR"
-    ],
+    "weekdays": [],
     "print_requested": false
   }
 }

@@ -9,7 +9,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from core import KINDS, SKILL, data_home, private_write, profile_path, read_json, save_profile, timezone, validate_issue, validate_profile, validate_schema
+from core import KINDS, SKILL, blank_profile, data_home, private_write, profile_path, read_json, save_profile, timezone, validate_issue, validate_profile, validate_schema
 
 
 def ask(label, default=""):
@@ -17,15 +17,23 @@ def ask(label, default=""):
     return answer if answer else str(default)
 
 
-def yes(label, default=False):
+def required(label, current=""):
     while True:
-        answer = ask(label + " (yes/no)", "yes" if default else "no").lower()
+        answer = ask(label, current)
+        if answer:
+            return answer
+        print("Please enter your choice; no answer is preselected.")
+
+
+def yes(label, default=None):
+    while True:
+        answer = ask(label + " (yes/no)", "" if default is None else ("yes" if default else "no")).lower()
         if answer in ("yes", "y", "no", "n"):
             return answer in ("yes", "y")
         print("Please enter yes or no.")
 
 
-def select(label, values, default):
+def select(label, values, default=""):
     while True:
         answer = ask(label + " (" + "/".join(values) + ")", default)
         if answer in values:
@@ -33,10 +41,10 @@ def select(label, values, default):
         print("Choose one of the listed values.")
 
 
-def number(label, default, low=1, high=20):
+def number(label, default=None, low=1, high=20):
     while True:
         try:
-            n = int(ask(label, default))
+            n = int(ask(label, "" if default is None else default))
             if low <= n <= high:
                 return n
         except ValueError:
@@ -50,7 +58,7 @@ def csv(label, current=()):
 
 
 def new_section(kind):
-    return {"id":kind,"kind":kind,"title":kind.title(),"enabled":True,"max_items":3,"regions":[],"topics":[],"exclude":[],"depth":"balanced","sources":{"mode":"open","domains":[]},"options":{}}
+    return {"id":kind,"kind":kind,"enabled":True,"regions":[],"topics":[],"exclude":[],"sources":{},"options":{}}
 
 
 def wizard(base, name, replace):
@@ -62,35 +70,48 @@ def wizard(base, name, replace):
             raise ValueError("Profile is already ready. Use setup --replace to edit it.")
         print("Resuming the existing profile. Enter keeps a previous answer.")
     else:
-        profile = copy.deepcopy(read_json(SKILL / "assets" / "example-profile.json"))
-        profile["status"] = "draft"
-        profile["sections"] = [new_section("news")]
-    pub = profile["publication"]
+        profile = blank_profile()
+    profile["status"] = "draft"
+    pub = profile.setdefault("publication", {})
+    profile.setdefault("sections", [])
+    profile.setdefault("editorial", {})
+    profile.setdefault("delivery", {})
+    def checkpoint():
+        save_profile(base,name,profile,replace=True)
+    checkpoint()
     print("\n1. Your newspaper\nAnswers stay in private local storage. No accounts will be connected by this wizard.")
-    pub["title"] = ask("Newspaper title", pub["title"])
-    pub["subtitle"] = ask("Subtitle ('-' for none)", pub["subtitle"])
+    pub["title"] = required("Newspaper title", pub.get("title", ""))
+    checkpoint()
+    pub["subtitle"] = ask("Subtitle ('-' for none)", pub.get("subtitle", ""))
     if pub["subtitle"] == "-":
         pub["subtitle"] = ""
-    pub["language"] = ask("Newspaper language (e.g. en or pt-BR)", pub["language"])
+    pub["language"] = required("Newspaper language", pub.get("language", ""))
+    checkpoint()
     while True:
-        pub["timezone"] = ask("IANA timezone (e.g. UTC or Asia/Tokyo)", pub["timezone"])
+        pub["timezone"] = required("IANA timezone", pub.get("timezone", ""))
         try:
             timezone(pub["timezone"])
             break
         except ValueError as exc:
             print(exc)
-    pub["format"] = select("Output", ("pdf","markdown","both"), pub["format"])
+    checkpoint()
+    pub["format"] = select("Output", ("pdf","markdown","both"), pub.get("format", ""))
     if pub["format"] != "markdown":
-        pub["pages"] = number("PDF pages (content must fit exactly)",pub["pages"],1,12)
-        pub["paper"] = select("Paper", ("A4","Letter"),pub["paper"])
-        pub["color"] = select("Appearance", ("color","monochrome"),pub["color"])
-        pub["body_size"] = number("Body text size in points",pub["body_size"],10,13)
-    pub["links"]["clickable"] = yes("Clickable headlines",pub["links"]["clickable"])
-    pub["links"]["qr"] = yes("Printed QR codes (PDF only)",pub["links"]["qr"]) if pub["format"] != "markdown" else False
+        pub["pages"] = number("PDF pages (content must fit exactly)",pub.get("pages"),1,12)
+        pub["paper"] = select("Paper", ("A4","Letter"),pub.get("paper", ""))
+        pub["color"] = select("Appearance", ("color","monochrome"),pub.get("color", ""))
+        pub["body_size"] = number("Body text size in points",pub.get("body_size"),10,13)
+    else:
+        for key in ("pages", "paper", "color", "body_size"):
+            pub.pop(key,None)
+    links = pub.setdefault("links", {})
+    links["clickable"] = yes("Clickable headlines",links.get("clickable"))
+    links["qr"] = yes("Printed QR codes (PDF only)",links.get("qr")) if pub["format"] != "markdown" else False
+    checkpoint()
 
     print("\n2. Sections, in reading order\nEvery section is optional. Add custom categories in conversation with the skill.")
     while True:
-        chosen = csv("Choose section kinds in order: " + ", ".join(KINDS),[s["kind"] for s in profile["sections"] if s["enabled"]])
+        chosen = csv("Choose section kinds in order: " + ", ".join(KINDS),[s["kind"] for s in profile["sections"] if s.get("enabled")])
         if chosen and len(chosen) == len(set(chosen)) and set(chosen) <= set(KINDS):
             break
         print("Choose at least one kind, without duplicates. Use conversation for several sections of the same kind.")
@@ -99,12 +120,13 @@ def wizard(base, name, replace):
     for s in profile["sections"]:
         s["enabled"] = True
         print(f"\n{s['kind'].title()}")
-        s["title"] = ask("Section title",s["title"])
-        s["max_items"] = number("Maximum items",s["max_items"])
+        s["title"] = required("Section title",s.get("title", ""))
+        s["max_items"] = number("Maximum items",s.get("max_items"))
         s["topics"] = csv("Topics / interests",s["topics"])
         s["exclude"] = csv("Topics to avoid",s["exclude"])
-        s["depth"] = select("Depth", ("brief","balanced","deep"),s["depth"])
-        s["sources"]["mode"] = select("Sources", ("open","allowlist"),s["sources"]["mode"])
+        s["depth"] = select("Depth", ("brief","balanced","deep"),s.get("depth", ""))
+        s["sources"]["mode"] = select("Sources", ("open","allowlist"),s["sources"].get("mode", ""))
+        s["sources"].setdefault("domains", [])
         if s["sources"]["mode"] == "allowlist":
             s["sources"]["domains"] = csv("Allowed source domains",s["sources"]["domains"])
         opts, kind = s["options"], s["kind"]
@@ -113,52 +135,54 @@ def wizard(base, name, replace):
         if kind == "weather":
             locations = csv("Weather locations",[x["name"] for x in opts.get("locations",[])])
             previous = {x["name"]:x["timezone"] for x in opts.get("locations",[])}
-            opts["locations"] = [{"name":loc,"timezone":ask(f"Timezone for {loc}",previous.get(loc,pub["timezone"]))} for loc in locations]
-            opts["temperature"] = select("Temperature",("celsius","fahrenheit"),opts.get("temperature","celsius"))
-            opts["wind"] = select("Wind",("kmh","mph","ms"),opts.get("wind","kmh"))
-            opts["weather_format"] = select("Forecast format",("compact","detailed"),opts.get("weather_format","compact"))
+            opts["locations"] = [{"name":loc,"timezone":required(f"Timezone for {loc}",previous.get(loc,""))} for loc in locations]
+            opts["temperature"] = select("Temperature",("celsius","fahrenheit"),opts.get("temperature",""))
+            opts["wind"] = select("Wind",("kmh","mph","ms"),opts.get("wind",""))
+            opts["weather_format"] = select("Forecast format",("compact","detailed"),opts.get("weather_format",""))
         if kind == "calendar":
             print("Choose a provider preference; connection availability is checked by the agent later. Never enter credentials or feed URLs here.")
-            provider = select("Calendar provider",("google","apple","outlook","notion","ics","manual","other"),opts.get("providers",[{}])[0].get("provider","manual"))
-            mode = select("Access",("connector","manual"),"manual" if provider in ("ics","manual") else "connector")
+            previous_provider = next(iter(opts.get("providers", [])), {})
+            provider = select("Calendar provider",("google","apple","outlook","notion","ics","manual","other"),previous_provider.get("provider",""))
+            mode = select("Access",("connector","manual"),previous_provider.get("mode", ""))
             opts["providers"] = [{"provider":provider,"mode":mode,"state":"pending" if mode=="connector" else "manual","calendars":csv("Calendar names to include")}]
-            opts["calendar_privacy"] = select("Calendar detail",("details","busy-only"),opts.get("calendar_privacy","busy-only"))
+            opts["calendar_privacy"] = select("Calendar detail",("details","busy-only"),opts.get("calendar_privacy",""))
         if kind == "economy":
             opts["instruments"] = csv("Instruments and currency pairs (or '-' for topics only)",opts.get("instruments",[]))
-            opts["currency"] = ask("Reporting currency (ISO code)",opts.get("currency","USD")).upper()
+            opts["currency"] = required("Reporting currency (ISO code)",opts.get("currency","")).upper()
         if kind in ("books","screen"):
             opts["interests"] = csv("Genres, themes, or favorite creators",opts.get("interests",[]))
             opts["avoid"] = csv("Already read/watched or disliked",opts.get("avoid",[]))
-            opts["spoiler_free"] = yes("Avoid spoilers",opts.get("spoiler_free",True))
+            opts["spoiler_free"] = yes("Avoid spoilers",opts.get("spoiler_free"))
         if kind == "screen":
-            opts["country"] = ask("Streaming catalog country",opts.get("country",""))
+            opts["country"] = required("Streaming catalog country",opts.get("country",""))
             opts["services"] = csv("Streaming services (or '-' for any)",opts.get("services",[]))
         if kind == "events":
-            opts["horizon_days"] = number("Event horizon in days",opts.get("horizon_days",14),1,90)
-            opts["weekend_plan"] = yes("Include a weekend plan",opts.get("weekend_plan",False))
+            opts["horizon_days"] = number("Event horizon in days",opts.get("horizon_days"),1,90)
+            opts["weekend_plan"] = yes("Include a weekend plan",opts.get("weekend_plan"))
         if kind == "learning":
-            opts["learning_level"] = select("Level",("beginner","intermediate","advanced"),opts.get("learning_level","beginner"))
-            opts["learning_format"] = select("Learning format",("concept","challenge","mixed"),opts.get("learning_format","concept"))
+            opts["learning_level"] = select("Level",("beginner","intermediate","advanced"),opts.get("learning_level",""))
+            opts["learning_format"] = select("Learning format",("concept","challenge","mixed"),opts.get("learning_format",""))
         if kind == "language":
-            opts["language_target"] = ask("Language to learn",opts.get("language_target",""))
+            opts["language_target"] = required("Language to learn",opts.get("language_target",""))
         # Save checkpoints so an interrupted interview can resume.
         profile["status"] = "draft"
         save_profile(base,name,profile,replace=True)
 
     print("\n3. Editorial preferences and delivery")
     ed = profile["editorial"]
-    ed["audience"] = ask("Who is the newspaper for? (no personal names needed)",ed["audience"])
-    ed["tone"] = ask("Editorial tone",ed["tone"])
-    ed["lookback_hours"] = number("News lookback in hours",ed["lookback_hours"],1,168)
-    ed["avoid_repeats_days"] = number("Avoid repeats for days",ed["avoid_repeats_days"],0,90)
+    ed["audience"] = required("Who is the newspaper for? (no personal names needed)",ed.get("audience", ""))
+    ed["tone"] = required("Editorial tone",ed.get("tone", ""))
+    ed["lookback_hours"] = number("News lookback in hours",ed.get("lookback_hours"),1,168)
+    ed["avoid_repeats_days"] = number("Avoid repeats for days",ed.get("avoid_repeats_days"),0,90)
     delivery = profile["delivery"]
-    delivery["schedule_requested"] = yes("Record an interest in scheduled generation",delivery["schedule_requested"])
+    delivery["schedule_requested"] = yes("Record an interest in scheduled generation",delivery.get("schedule_requested"))
     if delivery["schedule_requested"]:
-        delivery["time"] = ask("Preferred local time (HH:MM)",delivery["time"] or "07:00")
-        delivery["weekdays"] = csv("Days (MO, TU, WE, TH, FR, SA, SU)",delivery["weekdays"])
+        delivery["time"] = required("Preferred local time (HH:MM)",delivery.get("time") or "")
+        delivery["weekdays"] = csv("Days (MO, TU, WE, TH, FR, SA, SU)",delivery.get("weekdays", []))
     else:
         delivery["time"] = None
-    delivery["print_requested"] = yes("Record an interest in physical printing",delivery["print_requested"])
+        delivery["weekdays"] = []
+    delivery["print_requested"] = yes("Record an interest in physical printing",delivery.get("print_requested"))
     print("These preferences do not create a schedule or send a print job.")
     profile["status"] = "draft"
     save_profile(base,name,profile,replace=True)
@@ -214,7 +238,7 @@ def main(argv=None):
             print(save_profile(base,args.profile,profile,replace=args.replace))
         elif args.command == "demo":
             from render import render
-            profile = read_json(SKILL / "assets" / "example-profile.json")
+            profile = read_json(SKILL / "assets" / "demo-profile.json")
             profile["publication"]["links"]["qr"] = args.qr
             issue = read_json(SKILL / "assets" / "demo-issue.json")
             # A named demo never reads or overwrites a real reader profile.
