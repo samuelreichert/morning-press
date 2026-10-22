@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "date": "2000-01-01",
+  "number": 1,
+  "demo": true,
+  "sections": [
+    {
+      "id": "headlines",
+      "status": "ready",
+      "note": "",
+      "items": [
+        {
+          "title": "A fictional research library opens its doors",
+          "paragraphs": [
+            "DEMONSTRATION. Every story in this sample is invented to show the layout. No event, quotation, forecast, price, or recommendation on these pages is a report about the real world.",
+            "In this imagined story, a neighborhood library makes room for readers who want to understand the research behind everyday decisions. Its new reading room pairs introductory books with explanations of how evidence is collected, checked, and revised.",
+            "The interesting question is how a public institution can make a complicated subject approachable without stripping away uncertainty. A short answer can give readers a starting point; a longer explanation can show what remains unknown and why two careful observers might disagree.",
+            "A real edition would identify the institution, verify its announcement, check opening dates, and link the full headline to the original source. If those details could not be confirmed, the newspaper would say so instead of presenting this demonstration as current news."
+          ],
+          "url": "https://example.org/",
+          "source": null
+        },
+        {
+          "title": "What would make a useful morning briefing?",
+          "paragraphs": [
+            "A useful briefing connects a small number of developments to the questions a reader actually cares about. The point is to provide enough context to make a story understandable, with room to follow the original reporting when a subject deserves more attention.",
+            "This imaginary editorial desk uses three questions: what changed, what supports the claim, and what should a reader watch next? These questions work across local services, science, culture, and many other topics without forcing everyone to read the same mix.",
+            "The sample contains no account connections and no private calendar. In a personalized edition, each enabled section would be researched using the preferences selected during setup. Disabled sections would leave no empty boxes behind."
+          ],
+          "url": "https://example.org/",
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "local",
+      "status": "ready",
+      "note": "",
+      "items": [
+        {
+          "title": "An imagined square makes room for a quieter lunch",
+          "paragraphs": [
+            "DEMONSTRATION. Example City is a fictional location. This story illustrates the sort of local service reporting a reader might choose, rather than announcing a real project or an actual public consultation.",
+            "In the scenario, a small square receives movable chairs, shaded tables, and a noticeboard explaining how residents can comment on the design. A useful report would explain who can use the space, whether step-free access is available, and which details are still provisional.",
+            "Local reporting often becomes more helpful when it includes practical details. A council decision means more when a reader knows the affected street, the expected timing, and the official place to check for changes. Those facts would need live verification before publication."
+          ],
+          "url": "https://example.org/",
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "reading",
+      "status": "ready",
+      "note": "",
+      "items": [
+        {
+          "title": "A fictional field guide to noticing ordinary things",
+          "paragraphs": [
+            "This invented book recommendation demonstrates how reading preferences shape a section. It is not a published title, and the newspaper is not claiming that it can be bought or borrowed.",
+            "Imagine a collection of short essays about looking carefully at familiar places: the tree outside a window, the route to a station, or the small changes in a garden across a season. The appeal for a curious reader would lie in the connection between observation and explanation.",
+            "A real recommendation would verify the author, edition, language, and a reliable publisher or library link. It would explain the fit with the reader’s interests, respect books they have already read, and avoid revealing important plot details."
+          ],
+          "url": "https://example.org/",
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "learning",
+      "status": "ready",
+      "note": "",
+      "items": [
+        {
+          "title": "Ask what would change your mind",
+          "paragraphs": [
+            "A claim becomes easier to examine when you can name an observation that would count against it. This does not mean that every question has a quick experiment; it means making room for evidence to improve a belief.",
+            "For a small exercise, write down a harmless everyday prediction before you check it. Record what happened, then ask whether you described the prediction clearly enough to learn anything. A vague expectation can feel correct after almost any outcome.",
+            "This demonstration is an editorial example, not a research summary. A real learning section would link to appropriate primary material, select a level that matches the reader, and distinguish a suggested exercise from a verified scientific result."
+          ],
+          "url": "https://example.org/",
+          "source": null
+        }
+      ]
+    }
+  ]
+}

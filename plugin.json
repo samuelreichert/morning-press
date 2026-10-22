@@ -1,0 +1,11 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "morning-press",
+  "version": "0.1.0",
+  "description": "A personal newspaper with guided setup, optional sections, and private reader profiles.",
+  "extensions": {
+    "com.openai": {
+      "onboardingSkill": "./skills/morning-press/SKILL.md"
+    }
+  }
+}

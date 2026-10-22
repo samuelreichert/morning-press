@@ -1,0 +1,4 @@
+interface:
+  display_name: "Morning Press"
+  short_description: "Set up and create your own private morning newspaper"
+  default_prompt: "Use $morning-press to set up my newspaper and choose its sections."

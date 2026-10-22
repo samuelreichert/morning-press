@@ -1,0 +1,144 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "number": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 999999
+    },
+    "demo": {
+      "type": "boolean"
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,47}$"
+          },
+          "status": {
+            "enum": [
+              "ready",
+              "unavailable",
+              "no_updates",
+              "pending"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 220
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 5000
+                  },
+                  "maxItems": 12,
+                  "minItems": 1
+                },
+                "url": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "uri",
+                      "maxLength": 2000
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "source": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "publisher": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 160
+                        },
+                        "url": {
+                          "type": "string",
+                          "format": "uri",
+                          "maxLength": 2000
+                        },
+                        "published_at": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "maxLength": 100
+                        },
+                        "checked_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      },
+                      "required": [
+                        "publisher",
+                        "url",
+                        "published_at",
+                        "checked_at"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "title",
+                "paragraphs",
+                "url",
+                "source"
+              ]
+            },
+            "maxItems": 20
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "note",
+          "items"
+        ]
+      },
+      "maxItems": 24
+    }
+  },
+  "required": [
+    "version",
+    "date",
+    "number",
+    "demo",
+    "sections"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

@@ -1,0 +1,24 @@
+name: Checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.10', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -v
+      - run: python tools/check_public.py --history
+      - run: python skills/morning-press/scripts/press.py --data-dir "$RUNNER_TEMP/press-demo" demo
+      - run: python skills/morning-press/scripts/press.py --data-dir "$RUNNER_TEMP/press-demo" demo --qr

@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "status": "ready",
+  "publication": {
+    "title": "The Morning Edition",
+    "subtitle": "A little perspective for the day ahead",
+    "language": "en",
+    "timezone": "UTC",
+    "pages": 2,
+    "paper": "A4",
+    "format": "both",
+    "color": "color",
+    "body_size": 12,
+    "links": {
+      "clickable": true,
+      "qr": false
+    }
+  },
+  "sections": [
+    {
+      "id": "headlines",
+      "kind": "news",
+      "title": "The bigger picture",
+      "enabled": true,
+      "max_items": 3,
+      "regions": [
+        "Worldwide"
+      ],
+      "topics": [
+        "science",
+        "culture"
+      ],
+      "exclude": [],
+      "depth": "balanced",
+      "sources": {
+        "mode": "open",
+        "domains": []
+      },
+      "options": {}
+    },
+    {
+      "id": "local",
+      "kind": "news",
+      "title": "Around the corner",
+      "enabled": true,
+      "max_items": 3,
+      "regions": [
+        "Example City"
+      ],
+      "topics": [
+        "public spaces"
+      ],
+      "exclude": [],
+      "depth": "balanced",
+      "sources": {
+        "mode": "open",
+        "domains": []
+      },
+      "options": {}
+    },
+    {
+      "id": "reading",
+      "kind": "books",
+      "title": "Between the pages",
+      "enabled": true,
+      "max_items": 3,
+      "regions": [],
+      "topics": [
+        "nature writing"
+      ],
+      "exclude": [],
+      "depth": "balanced",
+      "sources": {
+        "mode": "open",
+        "domains": []
+      },
+      "options": {
+        "interests": [
+          "science",
+          "nature"
+        ],
+        "avoid": [],
+        "spoiler_free": true
+      }
+    },
+    {
+      "id": "learning",
+      "kind": "learning",
+      "title": "A small discovery",
+      "enabled": true,
+      "max_items": 3,
+      "regions": [],
+      "topics": [
+        "critical thinking"
+      ],
+      "exclude": [],
+      "depth": "balanced",
+      "sources": {
+        "mode": "open",
+        "domains": []
+      },
+      "options": {
+        "learning_level": "beginner",
+        "learning_format": "concept"
+      }
+    }
+  ],
+  "editorial": {
+    "lookback_hours": 36,
+    "avoid_repeats_days": 7,
+    "audience": "An adult reader",
+    "tone": "Clear, curious, and calm"
+  },
+  "delivery": {
+    "schedule_requested": false,
+    "time": null,
+    "weekdays": [
+      "MO",
+      "TU",
+      "WE",
+      "TH",
+      "FR"
+    ],
+    "print_requested": false
+  }
+}

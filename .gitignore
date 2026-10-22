@@ -1,0 +1,27 @@
+# Reader data belongs outside this repository. These are backup exclusions.
+.local/
+profiles/
+private/
+state/
+output/
+tmp/
+*.local.json
+newspaper.config.json
+.env
+.env.*
+*.ics
+*.ical
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.zip
+*.log
+*.pem
+*.key
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store
+.idea/
+.vscode/
